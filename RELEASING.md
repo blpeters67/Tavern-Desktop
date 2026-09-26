@@ -13,7 +13,7 @@ The desktop repository is https://github.com/blpeters67/Tavern-Desktop. It is se
 3. GitHub Actions tests the updater, builds the Windows installer and checks its metadata/checksum. It uploads the build and creates a **draft release** containing the installer, its blockmap, and latest.yml.
 4. Download and test the draft installer when convenient. On GitHub's Releases page, open the draft and click **Publish release**. That is the step that makes the update available to clients.
 
-Friends do not need GitHub accounts or tokens. Their clients check on startup and every four hours, download the update and display **Restart & update**. They can request a check immediately. Restart is always their choice and ends active calls. The settings/login directory is preserved.
+Friends do not need GitHub accounts or tokens. Their clients check on startup and every four hours, download the update in the background (a green arrow appears on the title-bar button), and install it when the app closes — or immediately when the user clicks **Restart & update** (which ends active calls). They can request a check immediately. The settings/login directory is preserved.
 
 The workflow can also be started manually from Actions → Build desktop release → Run workflow. A manual run creates downloadable build artifacts without publishing a release.
 
