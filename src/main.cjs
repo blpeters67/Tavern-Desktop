@@ -273,7 +273,8 @@ async function createMain() {
     } catch { /* first launch or invalid settings: use the default server */ }
   }
   const { UpdateController } = require('./update-controller.cjs');
-  updateController = new UpdateController(app.isPackaged && !smoke ? require('electron-updater').autoUpdater : null);
+  updateController = new UpdateController(app.isPackaged && !smoke ? require('electron-updater').autoUpdater : null,
+    { autoInstallOnAppQuit: app.isPackaged });
   setUpdateController(updateController);
   configureSession(); registerIpc();
   mainWindow = createTavernWindow({ ...restoreSize(config.size), minWidth: 800, minHeight: 600, show: false,

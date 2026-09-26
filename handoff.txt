@@ -1,4 +1,4 @@
-Tavern Desktop App — handoff (0.1.3)
+Tavern Desktop App — handoff (0.1.4)
 This repository is the standalone Windows wrapper, not the Tavern server. Do not modify the separate Tavern repository or its data/ while working here. The project is for Benji and a small group of friends: prefer simple, maintainable changes.
 Default URL: https://tavern.benjis.site/
 Read README.md for use, updates, tests and limitations. Desktop source and releases live in https://github.com/blpeters67/Tavern-Desktop. Compare/read files fresh before editing.
@@ -10,7 +10,7 @@ Architecture:
 - Local settings/capture pages have a small validated IPC bridge. Chrome has a separate bridge limited to menu/info/update; updater IPC checks the exact local shell URL, sender and main frame.
 - Close each WebContentsView explicitly when its parent closes, or media can survive.
 - Keep appId site.benjis.tavern.desktop, productName Tavern, and persist:tavern partition stable so updates retain app identity and sessions.
-- electron-updater uses the fixed GitHub provider from package.json/build.publish. autoDownload=true, autoInstallOnAppQuit=false; only the trusted title-bar action can call quitAndInstall(true,true). Never wipe userData.
+- electron-updater uses the fixed GitHub provider from package.json/build.publish. autoDownload=true; autoInstallOnAppQuit is enabled only when packaged (main.cjs passes app.isPackaged, so tests keep it off): a verified update installs when the app is closed unless the user clicks Restart & update earlier (the trusted title-bar action calls quitAndInstall(true,true)). ERR_UPDATER_NO_PUBLISHED_VERSIONS is reported as 'current' (Up to date), never as a retry error. Never wipe userData.
 - Checks start 15 seconds after launch and repeat every four hours. Drafts/prereleases/downgrades are excluded. RELEASING.md explains tag builds and draft publication.
 - Older 0.1.0/0.1.1 installations need one manual update to gain the updater.
 

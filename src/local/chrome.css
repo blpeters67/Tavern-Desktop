@@ -1,7 +1,11 @@
 *{box-sizing:border-box}html,body{margin:0;background:#070c17;color:#e0b252;font:12px "Segoe UI",sans-serif;overflow:hidden;color-scheme:dark}header{height:40px;display:flex;align-items:center;gap:20px;padding:0 155px 0 12px;border-bottom:1px solid #283047;user-select:none;app-region:drag}button{app-region:no-drag;display:flex;align-items:center;gap:9px;background:transparent;border:0;color:inherit;border-radius:4px;height:32px;padding:0 8px;cursor:pointer}button:hover{background:#182237}button:focus-visible{outline:2px solid #83c5ff}img{width:23px;height:23px;border-radius:5px}#brand{font:700 16px Georgia,serif;letter-spacing:.07em;font-variant:small-caps}.chevron{font-size:14px;color:#8c98b0}#caption{color:#8c98b0;font:italic 12px Georgia,serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#version{margin-left:auto;color:#5b6781;font-size:10px;white-space:nowrap}
 
 #update{flex-shrink:0;padding:0 10px;color:#adb7ca;border:1px solid #283552;font:600 11px "Segoe UI",sans-serif;height:28px}
+#update-arrow{display:none;width:11px;height:11px}
+#update-arrow path{fill:#3ba55d}
+#update[data-state=downloading] #update-arrow,#update[data-state=ready] #update-arrow{display:block}
 #update[data-state=ready]{background:#e0b252;border-color:#e0b252;color:#070c17}
+#update[data-state=ready] #update-arrow path{fill:#1e7a44}
 #update[data-state=error]{color:#f3cd78}
 #update:disabled{cursor:default;opacity:.75}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}

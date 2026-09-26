@@ -1,11 +1,12 @@
 'use strict';
 const updateButton = document.querySelector('#update');
+const updateLabel = document.querySelector('#update-label');
 function renderUpdate(state) {
   if (!state) return;
   const labels = { idle:'Check updates', checking:'Checking…', current:'Up to date',
     downloading:'Downloading ' + state.percent + '%', ready:'Restart & update',
     installing:'Restarting…', error:'Retry update', disabled:'Dev build' };
-  updateButton.textContent = labels[state.status] || 'Check updates';
+  updateLabel.textContent = labels[state.status] || 'Check updates';
   updateButton.dataset.state = state.status;
   updateButton.title = state.message;
   updateButton.setAttribute('aria-label', state.message);

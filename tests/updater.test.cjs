@@ -9,21 +9,21 @@ function fake() {
   updater.quitAndInstall = (...args) => updater.installs.push(args);
   return updater;
 }
-test('downloads in background; only a ready-button click restarts; duplicate clicks cannot install twice', async () => {
+test('downloads in background; the button restarts immediately; duplicate clicks cannot install twice', async () => {
   const updater = fake(); let finish;
   updater.checkForUpdates = async () => {
     updater.checks++; updater.emit('checking-for-update');
     updater.emit('update-available', {version:'1.2.3'});
     return { downloadPromise: new Promise(resolve => { finish = resolve; }) };
   };
-  const controller = new UpdateController(updater);
+  const controller = new UpdateController(updater, { autoInstallOnAppQuit: true });
   const check = controller.check();
   await controller.activate();
   assert.equal(updater.checks, 1);
   assert.equal(controller.snapshot().status, 'downloading');
   updater.emit('download-progress', {percent:38.5});
   assert.equal(controller.snapshot().percent, 39);
-  assert.equal(updater.autoInstallOnAppQuit, false);
+  assert.equal(updater.autoInstallOnAppQuit, true);
   assert.equal(updater.allowDowngrade, false);
   assert.equal(updater.allowPrerelease, false);
   updater.emit('update-downloaded', {version:'1.2.3'}); finish([]);
@@ -63,5 +63,18 @@ test('installer-launch errors return a retryable state', async () => {
   updater.quitAndInstall = () => { throw new Error('Access denied'); };
   await controller.activate();
   assert.equal(controller.snapshot().status, 'error');
+  controller.dispose();
+});
+test('a repository with no published releases reports up to date, not a retry', async () => {
+  const updater = fake();
+  updater.checkForUpdates = async () => { throw Object.assign(new Error('No published versions on GitHub'), { code: 'ERR_UPDATER_NO_PUBLISHED_VERSIONS' }); };
+  const controller = new UpdateController(updater);
+  await controller.check();
+  assert.equal(controller.snapshot().status, 'current');
+  assert.match(controller.snapshot().message, /latest desktop version/);
+  assert.deepEqual(updater.installs, []);
+  updater.checkForUpdates = async () => { throw Object.assign(new Error('getaddrinfo ENOTFOUND github.com'), { code: 'ENOTFOUND' }); };
+  await controller.check();
+  assert.equal(controller.snapshot().status, 'error', 'real network errors still retry');
   controller.dispose();
 });
