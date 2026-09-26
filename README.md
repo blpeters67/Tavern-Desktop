@@ -22,6 +22,7 @@ Maintainer instructions are in [RELEASING.md](RELEASING.md). Only published stab
 ## Camera / microphone troubleshooting
 Use **Help → Check Camera and Microphone** from the Tavern title-bar menu. It checks the live Tavern page's access to each device, briefly opens and immediately stops each one, and shows the exact errors with a **Copy Results** button. Nothing is recorded or sent to another player. Allow the app's permission prompts.
 Successful checks confirm access to the devices; they do not prove that a peer-to-peer call can reach another player. If access works but calls do not, check mute/deafen, selected devices in Tavern, and call/network diagnostics.
+If a check opens but the microphone stays silent or the camera stays black, check which device is selected under Settings → Voice. Windows' "Default" entry can be a virtual driver (for example WO Mic or SplitCam) that produces silence or black frames; select your actual hardware instead.
 
 ## Included
 - Tavern navy-and-gold title bar, branded menu, and native minimize/maximize/close controls.
@@ -35,7 +36,7 @@ Successful checks confirm access to the devices; they do not prove that a peer-t
 - Sandboxed website renderer, no Node integration or desktop IPC exposed to the website.
 
 ## Limits / things to test with your group
-Version 0.1.1 fixes the screen-picker permission rejection present in 0.1.0. Local checks cover real microphone/camera access on the development PC, a native test-window capture, fake-device WebRTC audio/video transport, cancellation, playback, window layout, isolation and recovery. Multi-person calls across different networks, screen-sharing system audio, and picture-in-picture still need real-session verification. Jukebox and Theater were reported working by the user. No push notification service, global push-to-talk shortcut, or Android app is included. Website features that rely on unusual popup or picture-in-picture behavior may differ from Chrome. The wrapper does not add notification features the website doesn't already implement.
+Version 0.1.1 fixes the screen-picker permission rejection present in 0.1.0. Version 0.1.3 fixes saved microphone/camera selection in calls: Chromium 130+ ignored the saved device, so calls could open with the system default — on some PCs a virtual driver with silence or black video. A device that is missing still falls back to the system default. Local checks cover real microphone/camera access on the development PC, a native test-window capture, fake-device WebRTC audio/video transport, cancellation, playback, window layout, isolation and recovery. Multi-person calls across different networks, screen-sharing system audio, and picture-in-picture still need real-session verification. Jukebox and Theater were reported working by the user. No push notification service, global push-to-talk shortcut, or Android app is included. Website features that rely on unusual popup or picture-in-picture behavior may differ from Chrome. The wrapper does not add notification features the website doesn't already implement.
 
 The installer is unsigned; no code-signing certificate is configured. Updates use HTTPS and SHA512 integrity checks. With no configured publisher certificate, Authenticode publisher verification is unavailable; protect the GitHub account that controls releases. Windows may still show a reputation warning. Keep the Electron runtime updated when rebuilding.
 
@@ -62,12 +63,13 @@ Normal desktop settings, cookies and cache are stored under Electron's userData 
 - `scripts/updater-test.cjs`, `src/updater-smoke.cjs`: real local-feed download/checksum tests that never execute an installer.
 - `.github/workflows/release.yml`: tagged Windows builds and draft GitHub releases.
 - `src/device-check.cjs`: live-page microphone/camera diagnostic.
+- `src/device-selection.cjs`: restores saved microphone/camera choices (Chromium 130+ ignores "ideal" deviceId constraints); injected into the Tavern page.
 - `src/media-smoke.cjs`, `src/loopback-check.cjs`: capture and local WebRTC integration tests.
 - `src/policy.cjs`: tested URL and permission rules.
 - `src/preload.cjs`: minimal bridge used only by local settings/offline/capture pages.
 - `src/local/`: offline/settings page and screen chooser.
 - `assets/tavern.svg`: copy of Tavern's existing favicon; generated PNG/ICO siblings.
 - `scripts/build-icon.cjs`: generates the Windows icon.
-- `tests/policy.test.cjs`: policy regression tests.
+- `tests/`: policy, updater and device-selection regression tests.
 ## License
 [PolyForm Noncommercial License 1.0.0](LICENSE.md), the same license used by Tavern. Required Notice: Copyright 2026 Benji. The license is included with the installed app as `LICENSE-Tavern.md`. Third-party components retain their own licenses.

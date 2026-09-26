@@ -5,6 +5,7 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { DEFAULT_URL, normalizeServer, sameOrigin, externalUrl, classifyNavigation, permissionAllowed, restoreSize } = require('./policy.cjs');
 const { createTavernWindow, setUpdateController } = require('./window-chrome.cjs');
+const { deviceSelectionFixSource } = require('./device-selection.cjs');
 const smoke = process.argv.includes('--smoke-test');
 if (smoke && !process.argv.includes('--real-devices')) app.commandLine.appendSwitch('use-fake-device-for-media-stream');
 if (smoke) app.setPath('userData', path.join(app.isPackaged ? path.dirname(app.getPath('exe')) : path.join(__dirname, '..'), '.test-profile', String(process.pid)));
@@ -279,6 +280,9 @@ async function createMain() {
     title: 'Tavern', icon, backgroundColor: '#101828', autoHideMenuBar: true,
     webPreferences: { session: serverSession, sandbox: true, contextIsolation: true, nodeIntegration: false, webviewTag: false, backgroundThrottling: false, spellcheck: true, autoplayPolicy: 'no-user-gesture-required' } });
   guardContents(mainWindow.page);
+  mainWindow.page.on('dom-ready', () => {
+    try { mainWindow.page.executeJavaScript(deviceSelectionFixSource).catch(() => { /* page closed mid-load */ }); } catch { /* window closed */ }
+  });
   mainWindow.page.on('page-title-updated', e => { e.preventDefault(); mainWindow.setTitle('Tavern'); });
   mainWindow.page.on('did-start-navigation', (_e, _url, _inPlace, isMainFrame) => { if (isMainFrame) finishShare(); });
   mainWindow.page.on('render-process-gone', () => { if (!quitting) { mainWindow.hide(); void showLocal('offline'); } });

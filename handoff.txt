@@ -1,4 +1,4 @@
-Tavern Desktop App — handoff (0.1.2)
+Tavern Desktop App — handoff (0.1.3)
 This repository is the standalone Windows wrapper, not the Tavern server. Do not modify the separate Tavern repository or its data/ while working here. The project is for Benji and a small group of friends: prefer simple, maintainable changes.
 Default URL: https://tavern.benjis.site/
 Read README.md for use, updates, tests and limitations. Desktop source and releases live in https://github.com/blpeters67/Tavern-Desktop. Compare/read files fresh before editing.
@@ -6,6 +6,7 @@ Read README.md for use, updates, tests and limitations. Desktop source and relea
 Architecture:
 - Electron 44.4.5. main.cjs owns permissions, sessions, navigation, capture and menus.
 - window-chrome.cjs uses a local BrowserWindow for a 40px themed header and a separate sandboxed WebContentsView (win.page) for content. Remote Tavern gets NO preload or desktop bridge.
+- main.cjs injects src/device-selection.cjs into the Tavern page on every dom-ready. Chromium 130+ ignores "ideal" deviceId constraints (electron/electron#44502), so the website's saved microphone/camera choice was silently dropped and calls opened with the system default. The wrapper promotes a real saved device id to "exact" and retries the original constraints when the exact device is missing, keeping the graceful fallback.
 - Local settings/capture pages have a small validated IPC bridge. Chrome has a separate bridge limited to menu/info/update; updater IPC checks the exact local shell URL, sender and main frame.
 - Close each WebContentsView explicitly when its parent closes, or media can survive.
 - Keep appId site.benjis.tavern.desktop, productName Tavern, and persist:tavern partition stable so updates retain app identity and sessions.
@@ -13,9 +14,10 @@ Architecture:
 - Checks start 15 seconds after launch and repeat every four hours. Drafts/prereleases/downgrades are excluded. RELEASING.md explains tag builds and draft publication.
 - Older 0.1.0/0.1.1 installations need one manual update to gain the updater.
 
-Confirmed fix:
-Electron 44.4.5 emits media permission with mediaTypes:[] before getDisplayMedia. v0.1.0 rejected it before the source picker. v0.1.1 allows the preliminary request only for the trusted Tavern renderer; the capture handler still requires top-level trusted origin, user gesture, and explicit source selection.
-Camera/microphone requests still prompt for consent. A real device test failed once without a serialized error, then separate checks opened both devices successfully. The cause of the user's in-call mic/camera failure has NOT been established. Use Help > Check Camera and Microphone on their live session to get specific errors. Do not claim all call bugs are resolved.
+Confirmed fixes:
+- Screen sharing: Electron 44.4.5 emits media permission with mediaTypes:[] before getDisplayMedia. v0.1.0 rejected it before the source picker. v0.1.1 allows the preliminary request only for the trusted Tavern renderer; the capture handler still requires top-level trusted origin, user gesture, and explicit source selection.
+- Microphone/camera in calls (0.1.3): root cause established by live replay against the reporter's profile. Chromium 130+ ignores "ideal" deviceId constraints; the saved device was silently replaced by the Windows default — on the reporter's PC the default microphone (WO Mic) produces digital silence and the default camera (SplitCam) produces black frames, which is exactly what was reported. src/device-selection.cjs restores the saved device (verified live: the saved C270 camera and Focusrite microphone are selected through the app's own request shape, and a bogus id still falls back to the system default). Separately, the reporter's headset microphone itself output zeros while Windows reported it unmuted — hardware mute switch or detached boom, not software.
+- Camera/microphone requests still prompt for consent.
 Do not mistake local WebRTC loopback success for successful connectivity between players behind NAT/firewalls.
 
 Tests:
@@ -28,7 +30,7 @@ Default Electron runtime download previously timed out; curl -4 from the officia
 
 Packaging:
 src/, generated PNG/ICO assets, package.json and production dependencies are bundled. dist/win-unpacked/Tavern.exe plus all siblings is the unpacked app; dist/Tavern-Setup-VERSION.exe installs it.
-Installer is unsigned. GitHub releases host updates. No signing certificate or Android app is configured. Existing camera/microphone in-call failures remain unconfirmed despite local checks.
+Installer is unsigned. GitHub releases host updates. No signing certificate or Android app is configured.
 
 License and public source:
 - LICENSE.md is copied verbatim from Tavern: PolyForm Noncommercial License 1.0.0, Required Notice: Copyright 2026 Benji.
