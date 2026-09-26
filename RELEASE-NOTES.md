@@ -1,6 +1,6 @@
-Tavern Desktop 0.1.4 updates itself. The title-bar button shows a green arrow while an update downloads, turns gold at **Restart & update**, and installs automatically when you close Tavern if you don't click sooner. When nothing newer exists it now says **Up to date** instead of a confusing retry message. It also includes the 0.1.3 microphone and camera fix: Chromium 130+ silently ignored a saved device choice, so calls could open with the system default device — on some PCs a virtual driver that produces silence or black video. Your saved microphone and camera now apply, with the old graceful fallback when the device is unplugged.
+Tavern Desktop 0.1.5 gets the update button out of the way: the title bar stays clean until an update actually exists. Then a green arrow appears while it downloads, turns gold at **Restart & update**, and installs automatically when you close Tavern if you don't click sooner. Updates are checked on startup and every four hours; a manual check lives at **Help → Check for Desktop Updates**.
 
-Includes the navy-and-gold Tavern title bar, the screen-picker permission fix, the title-bar update button, and Help → Check Camera and Microphone.
+Includes everything from 0.1.4: automatic updates, the microphone and camera selection fix, the screen-picker permission fix, the navy-and-gold title bar, and Help → Check Camera and Microphone.
 
 Install this version manually once if you have 0.1.0 or 0.1.1; later versions arrive automatically.
 

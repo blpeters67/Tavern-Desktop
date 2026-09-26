@@ -13,9 +13,9 @@ Click **Tavern ⌄** in the navy-and-gold title bar (or press **Alt**) to open t
 If the server is unavailable, use **Try Again**. Your server must remain running and reachable. Normal website updates appear on reload; desktop updates install automatically — see Updating.
 
 ## Updating
-Tavern Desktop keeps itself up to date. It checks for updates on startup and every four hours (or when you click the title-bar button). When an update is available, the button shows a green arrow and downloads it in the background from [Tavern-Desktop releases](https://github.com/blpeters67/Tavern-Desktop/releases). When it's ready, the button turns gold and says **Restart & update** — one click closes Tavern, installs the update, and reopens it (this ends any active call). If you don't click, the update installs by itself when you close Tavern, and you're on the new version next time you open it. When nothing newer exists, the button says **Up to date**.
+Tavern Desktop keeps itself up to date. It checks for updates on startup and every four hours (or from **Help → Check for Desktop Updates**). The title bar stays clean until an update exists — then a green arrow appears and the update downloads in the background from [Tavern-Desktop releases](https://github.com/blpeters67/Tavern-Desktop/releases). When it's ready, the button turns gold and says **Restart & update** — one click closes Tavern, installs the update, and reopens it (this ends any active call). If you don't click, the update installs by itself when you close Tavern, and you're on the new version next time you open it.
 
-Versions 0.1.0 and 0.1.1 need one manual installation of 0.1.2 or newer to gain the button. Close Tavern, run the installer and keep the same installation folder. No uninstall is needed. Login, server address and settings remain in userData.
+Versions 0.1.0 and 0.1.1 need one manual installation of 0.1.2 or newer to gain automatic updates. Close Tavern, run the installer and keep the same installation folder. No uninstall is needed. Login, server address and settings remain in userData.
 
 Maintainer instructions are in [RELEASING.md](RELEASING.md). Only published stable releases reach clients; drafts and prereleases do not.
 

@@ -255,10 +255,10 @@ function buildMenu() {
       { label: 'Check Camera and Microphone…', click: () => void checkDevices() },
       { label: 'Check for Desktop Updates', click: () => void updateController.check() },
       { label: 'How to Update…', click: () => void dialog.showMessageBox(mainWindow, {
-        title: 'Update Tavern Desktop', message: 'Click Restart & update in the title bar when an update is ready.',
-        detail: 'Desktop updates download in the background. Restart only happens when you click the update button, and ends any active call. Your login and settings are kept.\n\nWebsite updates appear when you reload. Versions before 0.1.2 need one manual installer update to gain this button.'
+        title: 'Update Tavern Desktop', message: 'Updates install themselves when you close Tavern.',
+        detail: 'There is nothing to do: updates are checked automatically, and the title bar only shows a green arrow once one exists. Click Restart & update there to install right away (this ends any active call), or simply close Tavern — the update installs then, and you are on it next time you open. Your login and settings are kept.\n\nWebsite updates appear when you reload. Versions before 0.1.2 need one manual installer update to gain automatic updates.'
       }) },
-      { label: 'About Tavern Desktop', click: () => void dialog.showMessageBox(mainWindow, { title: 'Tavern Desktop', message: 'Tavern Desktop ' + app.getVersion(), detail: 'Your existing Tavern, in its own window.\nClose the window to quit and leave calls.\nWebsite updates appear automatically; desktop updates appear in the title bar.' }) },
+      { label: 'About Tavern Desktop', click: () => void dialog.showMessageBox(mainWindow, { title: 'Tavern Desktop', message: 'Tavern Desktop ' + app.getVersion(), detail: 'Your existing Tavern, in its own window.\nClose the window to quit and leave calls.\nWebsite updates appear automatically; desktop updates install themselves when you close the app.' }) },
       { label: 'Developer Tools', accelerator: 'CmdOrCtrl+Shift+I', click: () => mainWindow.page.toggleDevTools() }
     ] }
   ]));
@@ -354,15 +354,17 @@ async function runSmoke() {
     updateController.dispose();
     updateController = new (require('./update-controller.cjs').UpdateController)(fakeUpdater);
     setUpdateController(updateController);
+    assert.equal(await mainWindow.webContents.executeJavaScript('getComputedStyle(document.querySelector("#update")).display'), 'none', 'the update control stays hidden until an update exists');
     fakeUpdater.emit('update-downloaded', { version: '99.0.0' });
     await new Promise(resolve => setTimeout(resolve, 100));
+    assert.equal(await mainWindow.webContents.executeJavaScript('getComputedStyle(document.querySelector("#update")).display'), 'flex');
     assert.equal(await mainWindow.webContents.executeJavaScript('document.querySelector("#update").textContent'), 'Restart & update');
     assert.equal(installs, 0);
     const chromeShot = await mainWindow.webContents.capturePage({ x: 0, y: 0, width: mainWindow.getContentSize()[0], height: 40 });
     fs.writeFileSync(path.join(app.getPath('userData'), 'titlebar-preview.png'), chromeShot.toPNG());
     await mainWindow.webContents.executeJavaScript('window.tavernChrome.update()');
     assert.equal(installs, 1);
-    console.log('PASS: update button displays ready state and invokes installation only after a trusted title-bar action.');
+    console.log('PASS: update control is hidden until an update exists, then shows ready state and installs only after a trusted title-bar action.');
     console.log('PASS: Electron loads server, isolates remote content, validates settings, persists session and presents offline recovery.');
   } catch (error) { failed = true; console.error(error?.stack || error?.message || String(error)); }
   finally { testServer.close(); quitting = true; app.exit(failed ? 1 : 0); }
