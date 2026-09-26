@@ -1,0 +1,47 @@
+name: Build desktop release
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Ensure Electron runtime is downloaded
+        run: node node_modules/electron/install.js
+      - run: npm test
+      - name: Test real updater downloads and verification
+        run: npm run test:updater
+      - name: Build Windows installer
+        run: npm run dist -- --config.electronDist=node_modules/electron/dist
+      - run: npm run release:verify
+      - name: Retain build for manual testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tavern-Windows
+          path: |
+            dist/Tavern-Setup-*.exe
+            dist/Tavern-Setup-*.exe.blockmap
+            dist/latest.yml
+      - name: Create draft release
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $installer = "dist/Tavern-Setup-$version.exe"
+          gh release create "$env:GITHUB_REF_NAME" "$installer" "$installer.blockmap" dist/latest.yml --verify-tag --draft --title "Tavern Desktop $version" --notes-file RELEASE-NOTES.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

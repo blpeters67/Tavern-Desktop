@@ -1,0 +1,18 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const assert = require('node:assert/strict');
+const yaml = require('js-yaml');
+const pkg = require('../package.json');
+const metadata = yaml.load(fs.readFileSync(path.join(__dirname,'../dist/latest.yml'),'utf8'));
+assert.equal(metadata.version,pkg.version,'Update metadata has the wrong version');
+if (process.env.GITHUB_REF_TYPE === 'tag') assert.equal(process.env.GITHUB_REF_NAME,'v'+pkg.version,'Tag and package version must match');
+const filename = 'Tavern-Setup-' + pkg.version + '.exe';
+const record = metadata.files.find(file => file.url === filename);
+assert.ok(record,'Installer missing from update metadata');
+const installer = fs.readFileSync(path.join(__dirname,'../dist',filename));
+assert.equal(crypto.createHash('sha512').update(installer).digest('base64'),record.sha512,'Installer checksum mismatch');
+assert.equal(installer.length,record.size,'Installer size mismatch');
+assert.ok(fs.statSync(path.join(__dirname,'../dist',filename+'.blockmap')).size>0,'Missing blockmap');
+console.log('PASS: release version, installer SHA512, size and blockmap.');

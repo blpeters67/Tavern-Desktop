@@ -1,0 +1,37 @@
+Tavern Desktop App — handoff (0.1.2)
+This repository is the standalone Windows wrapper, not the Tavern server. Do not modify the separate Tavern repository or its data/ while working here. The project is for Benji and a small group of friends: prefer simple, maintainable changes.
+Default URL: https://tavern.benjis.site/
+Read README.md for use, updates, tests and limitations. Desktop source and releases live in https://github.com/blpeters67/Tavern-Desktop. Compare/read files fresh before editing.
+
+Architecture:
+- Electron 44.4.5. main.cjs owns permissions, sessions, navigation, capture and menus.
+- window-chrome.cjs uses a local BrowserWindow for a 40px themed header and a separate sandboxed WebContentsView (win.page) for content. Remote Tavern gets NO preload or desktop bridge.
+- Local settings/capture pages have a small validated IPC bridge. Chrome has a separate bridge limited to menu/info/update; updater IPC checks the exact local shell URL, sender and main frame.
+- Close each WebContentsView explicitly when its parent closes, or media can survive.
+- Keep appId site.benjis.tavern.desktop, productName Tavern, and persist:tavern partition stable so updates retain app identity and sessions.
+- electron-updater uses the fixed GitHub provider from package.json/build.publish. autoDownload=true, autoInstallOnAppQuit=false; only the trusted title-bar action can call quitAndInstall(true,true). Never wipe userData.
+- Checks start 15 seconds after launch and repeat every four hours. Drafts/prereleases/downgrades are excluded. RELEASING.md explains tag builds and draft publication.
+- Older 0.1.0/0.1.1 installations need one manual update to gain the updater.
+
+Confirmed fix:
+Electron 44.4.5 emits media permission with mediaTypes:[] before getDisplayMedia. v0.1.0 rejected it before the source picker. v0.1.1 allows the preliminary request only for the trusted Tavern renderer; the capture handler still requires top-level trusted origin, user gesture, and explicit source selection.
+Camera/microphone requests still prompt for consent. A real device test failed once without a serialized error, then separate checks opened both devices successfully. The cause of the user's in-call mic/camera failure has NOT been established. Use Help > Check Camera and Microphone on their live session to get specific errors. Do not claim all call bugs are resolved.
+Do not mistake local WebRTC loopback success for successful connectivity between players behind NAT/firewalls.
+
+Tests:
+npm test
+npm run test:updater (actual local metadata/download/SHA512 checks; no installer execution)
+npm run test:app (isolated fixture, fake devices, actual capture of own hidden test window, local WebRTC, UI isolation/recovery)
+npm run test:app -- --real-devices (real device checks; no recording/transmission)
+npm run dist -- --config.electronDist=node_modules/electron/dist
+Default Electron runtime download previously timed out; curl -4 from the official GitHub release worked. Runtime SHA256 was verified against node_modules/electron/checksums.json. .build-cache contains that zip. Do not disable TLS or checksums.
+
+Packaging:
+src/, generated PNG/ICO assets, package.json and production dependencies are bundled. dist/win-unpacked/Tavern.exe plus all siblings is the unpacked app; dist/Tavern-Setup-VERSION.exe installs it.
+Installer is unsigned. GitHub releases host updates. No signing certificate or Android app is configured. Existing camera/microphone in-call failures remain unconfirmed despite local checks.
+
+License and public source:
+- LICENSE.md is copied verbatim from Tavern: PolyForm Noncommercial License 1.0.0, Required Notice: Copyright 2026 Benji.
+- Keep the license in source and distributions; build.extraFiles supplies LICENSE-Tavern.md alongside the executable.
+- Never publish .env, userData, test profiles, update caches, tokens, signing keys or server data. The .gitignore excludes local build/test material and secrets.
+- README.md is the public overview, RELEASING.md is the maintainer guide, RELEASE-NOTES.md is used for release drafts. Update them when behavior changes.
