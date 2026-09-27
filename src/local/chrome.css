@@ -8,6 +8,7 @@
 #update[data-state=ready]{background:#e0b252;border-color:#e0b252;color:#070c17}
 #update[data-state=ready] #update-arrow path{fill:#1e7a44}
 #update[data-state=error]{color:#f3cd78}
+#update[data-state=current]{color:#9fd3a5}
 #update:disabled{cursor:default;opacity:.75}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 @media(max-width:760px){#caption{display:none}header{gap:8px}}

@@ -3,7 +3,7 @@ const { EventEmitter } = require('node:events');
 class UpdateController extends EventEmitter {
   constructor(updater, options = {}) {
     super(); this.updater = updater; this.busy = false;
-    this.state = { status: updater ? 'idle' : 'disabled', version: '', percent: 0,
+    this.state = { status: updater ? 'idle' : 'disabled', version: '', percent: 0, manual: false,
       message: updater ? 'Check for desktop updates' : 'Updates are available in the installed app.' };
     this.listeners = [];
     if (!updater) return;
@@ -40,9 +40,12 @@ class UpdateController extends EventEmitter {
       ? 'Update verification failed. Nothing was installed. Click to retry.'
       : 'Could not check or download an update. Check your connection and click to retry.' });
   }
-  async check() {
+  async check(manual = false) {
     if (!this.updater || this.busy || ['ready', 'installing'].includes(this.state.status)) return this.snapshot();
     this.busy = true;
+    // A check the user started may speak up in the titlebar even when it finds
+    // nothing; the automatic ones stay quiet unless there is real news.
+    this.set({ manual });
     try {
       const result = await this.updater.checkForUpdates();
       if (result?.downloadPromise) await result.downloadPromise;
@@ -51,7 +54,7 @@ class UpdateController extends EventEmitter {
     return this.snapshot();
   }
   async activate() {
-    if (this.state.status !== 'ready') return this.check();
+    if (this.state.status !== 'ready') return this.check(true); // the titlebar button is a person
     this.set({ status: 'installing', message: 'Restarting Tavern to install the update…' });
     try { this.updater.quitAndInstall(true, true); }
     catch (error) { this.fail(error); }

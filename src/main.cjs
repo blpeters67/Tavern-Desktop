@@ -253,10 +253,10 @@ function buildMenu() {
       { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => mainWindow.page.setZoomLevel(Math.max(-3, mainWindow.page.getZoomLevel() - 0.5)) }, { type: 'separator' }, { role: 'togglefullscreen' }] },
     { label: 'Help', submenu: [
       { label: 'Check Camera and Microphone…', click: () => void checkDevices() },
-      { label: 'Check for Desktop Updates', click: () => void updateController.check() },
+      { label: 'Check for Desktop Updates', click: () => void updateController.check(true) },
       { label: 'How to Update…', click: () => void dialog.showMessageBox(mainWindow, {
         title: 'Update Tavern Desktop', message: 'Updates install themselves when you close Tavern.',
-        detail: 'There is nothing to do: updates are checked automatically, and the title bar only shows a green arrow once one exists. Click Restart & update there to install right away (this ends any active call), or simply close Tavern — the update installs then, and you are on it next time you open. Your login and settings are kept.\n\nWebsite updates appear when you reload. Versions before 0.1.2 need one manual installer update to gain automatic updates.'
+        detail: 'There is nothing to do: updates are checked automatically, and the title bar stays quiet unless there is news. It shows progress and a green arrow once an update exists — click Restart & update there to install right away (this ends any active call), or simply close Tavern; the update installs then and you are on it next time you open. A check you start yourself (this menu) reports its result there too, and a failed one offers a retry instead of vanishing. Your login and settings are kept.\n\nWebsite updates appear when you reload. Versions before 0.1.2 need one manual installer update to gain automatic updates.'
       }) },
       { label: 'About Tavern Desktop', click: () => void dialog.showMessageBox(mainWindow, { title: 'Tavern Desktop', message: 'Tavern Desktop ' + app.getVersion(), detail: 'Your existing Tavern, in its own window.\nClose the window to quit and leave calls.\nWebsite updates appear automatically; desktop updates install themselves when you close the app.' }) },
       { label: 'Developer Tools', accelerator: 'CmdOrCtrl+Shift+I', click: () => mainWindow.page.toggleDevTools() }

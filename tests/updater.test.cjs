@@ -49,6 +49,21 @@ test('failed verification does not install and a failed check can be retried', a
   assert.equal(controller.snapshot().status, 'current');
   controller.dispose();
 });
+test('manual checks are marked so the titlebar can speak up; automatic ones clear the mark', async () => {
+  const updater = fake();
+  updater.checkForUpdates = async () => { updater.emit('update-not-available'); return null; };
+  const controller = new UpdateController(updater);
+  await controller.check(true);
+  assert.equal(controller.snapshot().status, 'current');
+  assert.equal(controller.snapshot().manual, true);
+  await controller.check();
+  assert.equal(controller.snapshot().manual, false, 'an automatic check goes quiet again');
+  updater.checkForUpdates = async () => { updater.emit('update-available', {version:'9.9.9'}); return null; };
+  await controller.activate(); // not ready → the titlebar click asks for a manual check
+  assert.equal(controller.snapshot().status, 'downloading');
+  assert.equal(controller.snapshot().manual, true);
+  controller.dispose();
+});
 test('development builds cannot start checks or installs', async () => {
   const controller = new UpdateController(null);
   await controller.activate(); controller.start();
