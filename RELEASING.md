@@ -36,6 +36,8 @@ A local release must include all three files from the **same build**:
 
 If publishing manually with GitHub CLI, create a draft and attach all three files before publishing it. Use RELEASE-NOTES.md with `--notes-file`. Tag the exact source commit used for the build. Do not replace assets on an already published release: release a higher version instead. Keep prior releases available.
 
+Editing a release body with `gh api repos/.../releases/ID -X PATCH -F "body=@RELEASE-NOTES.md"` drops the release's tag association: `tag_name` silently becomes `untagged-…` and `releases/latest` stops pointing at it, even though the git tag still exists. Always pass the tag in the same call (`-f tag_name=vX.Y.Z`), or use `--input` with a JSON file; if it happens, re-attach with `-f tag_name=…`.
+
 ## What changes for the maintainer?
 - One extra release step for desktop changes: bump/tag the version, then publish the generated draft.
 - No changes to Docker, the Tavern database, server uploads, or the Tavern website.
